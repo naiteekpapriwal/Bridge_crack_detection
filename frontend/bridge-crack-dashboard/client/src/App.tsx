@@ -83,7 +83,6 @@ function LandingPage() {
     <div className="landing-page">
       <header className="landing-nav">
         <Link href="/" className="landing-brand">
-          <span className="brand-mark logo-emblem" aria-hidden="true"><svg viewBox="0 0 36 36" role="img"><path d="M18 3 30 10v14l-12 7L6 24V10l12-7Z" /><path d="m15 9 4 6-4 4 5 8" /><path d="M10 18h4M22 13h4" /></svg></span>
           <span><small>STRUCTURAL AI</small><strong>CRACK<span>/</span>SCAN</strong></span>
         </Link>
         <nav className="landing-links"><a href="#how-it-works">How it works</a><a href="#capabilities">Capabilities</a><Link href="/console">Open console <ArrowUpRight size={14} /></Link></nav>
@@ -102,9 +101,36 @@ function LandingPage() {
             <div className="hero-visual-glow" />
             <div className="visual-grid" />
             <div className="visual-topline"><span>LIVE STRUCTURAL MODEL</span><span><span className="hero-live-dot" /> READY</span></div>
-            <div className="bridge-scene photo-scene">
-              <img src="https://images.unsplash.com/photo-1513360408428-02be46e29788?q=80&w=1400&auto=format&fit=crop" alt="Engineer inspecting a concrete bridge" />
-              <div className="photo-tint" /><div className="scan-beam" /><div className="scan-target target-one"><span /><b>0.18 mm</b></div><div className="scan-target target-two"><span /><b>0.42 mm</b></div>
+            <div className="bridge-scene abstract-scene" style={{ background: '#0d0d12', overflow: 'hidden', position: 'relative', height: '100%', border: '1px solid rgba(157,114,255,0.2)' }}>
+              {/* High-tech grid background */}
+              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(157, 114, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(157, 114, 255, 0.1) 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.5 }} />
+              
+              {/* Simulated crack vectors */}
+              <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, filter: 'drop-shadow(0 0 6px rgba(157, 114, 255, 0.4))' }}>
+                {/* Minor crack */}
+                <path d="M 120 40 L 140 100 L 110 160 L 160 210 L 150 260 L 190 320" fill="none" stroke="#9d72ff" strokeWidth="2" strokeDasharray="4,4" />
+                {/* Major crack */}
+                <path d="M 280 80 L 260 140 L 290 190 L 270 250 L 320 310" fill="none" stroke="#ff6b6b" strokeWidth="4" />
+                
+                {/* Measurement nodes */}
+                <circle cx="110" cy="160" r="4" fill="#9d72ff" />
+                <circle cx="290" cy="190" r="5" fill="#ff6b6b" />
+                <circle cx="270" cy="250" r="5" fill="#ff6b6b" />
+              </svg>
+              
+              {/* Scanning beam effect */}
+              <div className="scan-beam" style={{ background: 'linear-gradient(to bottom, transparent, rgba(157, 114, 255, 0.15))', borderBottom: '1.5px solid #9d72ff', zIndex: 10 }} />
+              
+              {/* Overlay Targets */}
+              <div className="scan-target target-one" style={{ top: '150px', left: '125px', color: '#9d72ff' }}><span style={{ borderColor: '#9d72ff', background: 'transparent' }} /><b style={{ background: 'rgba(157,114,255,0.1)', border: '1px solid rgba(157,114,255,0.3)', color: '#9d72ff' }}>0.18 mm</b></div>
+              <div className="scan-target target-two" style={{ top: '180px', left: '305px', color: '#ff6b6b' }}><span style={{ borderColor: '#ff6b6b', background: 'transparent' }} /><b style={{ background: 'rgba(255,107,107,0.1)', border: '1px solid rgba(255,107,107,0.3)', color: '#ff6b6b' }}>0.42 mm</b></div>
+              
+              {/* Telemetry data */}
+              <div style={{ position: 'absolute', bottom: 16, right: 16, fontFamily: 'monospace', fontSize: 10, color: 'rgba(157,114,255,0.7)', textAlign: 'right', lineHeight: 1.6, zIndex: 5 }}>
+                <div>&gt; INGESTING SURFACE_MAP... [OK]</div>
+                <div>&gt; CNN_EXTRACT(LAYERS=52)... [OK]</div>
+                <div>&gt; VECTOR_OVERLAY_ACTIVE</div>
+              </div>
             </div>
             <div className="visual-footer"><span>FRAME 001 / CONCRETE SURFACE</span><strong>AI ANALYSIS</strong></div>
             <div className="hero-floating-card floating-status"><span className="floating-icon mint"><ShieldCheck size={15} /></span><span><small>STRUCTURAL STATUS</small><strong>Within threshold</strong></span></div>
@@ -231,13 +257,13 @@ function BridgeDashboard() {
   return (
     <div className="app-shell">
       <aside className={`sidebar ${mobileMenuOpen ? "sidebar-open" : ""}`}>
-        <div className="brand-block">
+        <div className="brand-block" onClick={() => setLocation("/")} style={{ cursor: "pointer" }} title="Return to home screen">
           <div className="brand-mark"><ScanLine size={19} strokeWidth={2.4} /></div>
           <div>
             <p className="eyebrow">STRUCTURAL AI</p>
             <p className="brand-name">CRACK<span>/</span>SCAN</p>
           </div>
-          <button className="mobile-close" onClick={() => setMobileMenuOpen(false)} aria-label="Close navigation"><X size={18} /></button>
+          <button className="mobile-close" onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(false); }} aria-label="Close navigation"><X size={18} /></button>
         </div>
 
         <div className="sidebar-rule" />
@@ -406,20 +432,20 @@ function BridgeDashboard() {
               <p>Compare current crack dimensions against historical scans to measure structural deterioration over time.</p>
               
               <div style={{ display: 'flex', gap: 24, marginTop: 32, justifyContent: 'center' }}>
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8, padding: 16, width: 220, textAlign: 'left' }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>PREVIOUS SCAN (2024)</div>
-                  <div style={{ fontSize: 24, fontWeight: 300, color: '#eef6f0' }}>0.35 <small style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>mm</small></div>
-                  <div style={{ fontSize: 13, marginTop: 4, color: 'rgba(255,255,255,0.4)' }}>Max Width</div>
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, width: 220, textAlign: 'left', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>PREVIOUS SCAN (2024)</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: '#0f172a' }}>0.35 <small style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>mm</small></div>
+                  <div style={{ fontSize: 13, marginTop: 4, color: '#64748b' }}>Max Width</div>
                 </div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <TrendingUp size={24} style={{ color: '#ff6b6b', opacity: 0.8 }} />
+                  <TrendingUp size={24} style={{ color: '#e11d48', opacity: 0.8 }} />
                 </div>
 
-                <div style={{ background: 'rgba(255,50,50,0.05)', border: '1px solid rgba(255,50,50,0.15)', borderRadius: 8, padding: 16, width: 220, textAlign: 'left' }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#ff6b6b', marginBottom: 8 }}>CURRENT SCAN (2026)</div>
-                  <div style={{ fontSize: 24, fontWeight: 300, color: '#eef6f0' }}>0.42 <small style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>mm</small></div>
-                  <div style={{ fontSize: 13, marginTop: 4, color: '#ff6b6b' }}>+20% Growth Detected</div>
+                <div style={{ background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: 8, padding: 16, width: 220, textAlign: 'left' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#e11d48', marginBottom: 8 }}>CURRENT SCAN (2026)</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: '#9f1239' }}>0.42 <small style={{ fontSize: 13, color: '#e11d48', fontWeight: 400 }}>mm</small></div>
+                  <div style={{ fontSize: 13, marginTop: 4, color: '#e11d48', fontWeight: 500 }}>+20% Growth Detected</div>
                 </div>
               </div>
             </div>

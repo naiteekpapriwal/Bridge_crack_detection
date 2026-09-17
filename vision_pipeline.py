@@ -428,7 +428,7 @@ class CrackDetector:
 
         # --- Black-Hat at multiple scales ---
         blackhat_combined = np.zeros_like(enhanced)
-        for ksize in [9, 15, 23, 31]:
+        for ksize in [11, 23, 45, 75]:
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (ksize, ksize))
             bh = cv2.morphologyEx(enhanced, cv2.MORPH_BLACKHAT, kernel)
             blackhat_combined = cv2.max(blackhat_combined, bh)
@@ -473,20 +473,30 @@ class CrackDetector:
             short_side = max(min(bw, bh_box), 1)
             aspect = long_side / short_side
 
-            # Cracks are elongated — reject compact blobs
-            if aspect < 1.5:
-                continue
+            area_ratio = area / (h * w)
+            is_massive_defect = area_ratio > 0.015  # Greater than 1.5% of the image
 
-            # Solidity: cracks are not solidly filled
+            # Calculate solidity
             hull = cv2.convexHull(contour)
             hull_area = cv2.contourArea(hull)
             solidity = area / hull_area if hull_area > 0 else 1.0
 
-            if solidity > 0.75:
-                continue
+            if not is_massive_defect:
+                # Cracks are elongated — reject compact blobs
+                if aspect < 1.5:
+                    continue
 
-            # Single detection shouldn't cover > 10% of image
-            if area / (h * w) > 0.15:
+                # Solidity: cracks are not solidly filled
+                if solidity > 0.75:
+                    continue
+            else:
+                # For massive structural damage (spalling/huge cracks), allow blobby shapes
+                # but still reject perfectly square non-defects.
+                if aspect < 1.1 and solidity > 0.90:
+                    continue
+
+            # Reject if it covers more than a third of the image (likely a wall/sky)
+            if area_ratio > 0.35:
                 continue
 
             # Build mask
