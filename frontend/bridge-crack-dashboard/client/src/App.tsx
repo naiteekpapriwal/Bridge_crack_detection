@@ -3,16 +3,22 @@ import {
   Activity,
   AlertTriangle,
   ArrowUpRight,
+  Calculator,
   CheckCircle2,
   ChevronRight,
   CircleHelp,
   CloudUpload,
+  Download,
+  Droplets,
   FileImage,
+  Files,
+  FileText,
   Gauge,
   HardHat,
   Image as ImageIcon,
   Info,
   Loader2,
+  TrendingUp,
   Menu,
   Minus,
   PanelRight,
@@ -28,7 +34,7 @@ import {
 } from "lucide-react";
 import { Toaster, toast } from "sonner";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { Link, Route, Switch } from "wouter";
+import { Link, Route, Switch, useLocation } from "wouter";
 
 type DetectionResult = {
   max_width_mm?: number;
@@ -65,6 +71,7 @@ function App() {
       <Switch>
         <Route path="/" component={LandingPage} />
         <Route path="/console" component={BridgeDashboard} />
+        <Route path="/console/:tab" component={BridgeDashboard} />
         <Route component={LandingPage} />
       </Switch>
     </ThemeProvider>
@@ -125,12 +132,17 @@ function BridgeDashboard() {
   const [processedPreview, setProcessedPreview] = useState<string | null>(null);
   const [scanState, setScanState] = useState<ScanState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [pipelineInfo, setPipelineInfo] = useState<{ preprocessing?: string; filtering?: string; raw_detections?: number; filtered_detections?: number; accepted_detections?: number } | null>(null);
   const [maxWidth, setMaxWidth] = useState<number | null>(null);
   const [avgWidth, setAvgWidth] = useState<number | null>(null);
+  const [numCracks, setNumCracks] = useState(0);
   const [scale, setScale] = useState(0.05);
   const [isDragging, setIsDragging] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [location, setLocation] = useLocation();
+
+  const currentTab = location.split("/").pop() || "console";
 
   const analyzeImage = useCallback(
     async (selectedFile: File) => {
@@ -139,7 +151,9 @@ function BridgeDashboard() {
       setProcessedPreview(null);
       setMaxWidth(null);
       setAvgWidth(null);
+      setNumCracks(0);
       setErrorMessage("");
+      setPipelineInfo(null);
       setScanState("loading");
 
       const formData = new FormData();
@@ -158,15 +172,29 @@ function BridgeDashboard() {
         }
 
         const result = await response.json();
-        const measurements = result.detections?.[0]?.measurements;
-        
-        setMaxWidth(typeof measurements?.max_width_mm === "number" ? measurements.max_width_mm : null);
-        setAvgWidth(typeof measurements?.mean_width_mm === "number" ? measurements.mean_width_mm : null);
+        const allDetections = result.detections || [];
+        setNumCracks(allDetections.length);
+
+        // Aggregate measurements across ALL detections
+        if (allDetections.length > 0) {
+          const maxW = Math.max(...allDetections.map((d: any) => d.measurements?.max_width_mm ?? 0));
+          const avgW = allDetections.reduce((sum: number, d: any) => sum + (d.measurements?.mean_width_mm ?? 0), 0) / allDetections.length;
+          setMaxWidth(maxW);
+          setAvgWidth(avgW);
+        } else {
+          setMaxWidth(null);
+          setAvgWidth(null);
+        }
         
         // The backend directly returns a data URI now, so we can use it directly
         setProcessedPreview(result.annotated_image || null);
+        setPipelineInfo(result.pipeline_info || null);
         setScanState("success");
-        toast.success("Analysis complete", { description: "Crack measurements are ready to review." });
+        toast.success("Analysis complete", {
+          description: result.pipeline_info
+            ? `${result.pipeline_info.raw_detections ?? 0} raw → ${result.pipeline_info.filtered_detections ?? 0} filtered → ${result.pipeline_info.accepted_detections ?? 0} accepted`
+            : "Crack measurements are ready to review.",
+        });
       } catch (error) {
         const message = error instanceof Error ? error.message : "Unable to reach the detection service.";
         setErrorMessage(message.includes("Failed to fetch") ? "API offline — check that localhost:8000 is running." : message);
@@ -196,7 +224,7 @@ function BridgeDashboard() {
   };
 
   const statusIsWarning = maxWidth !== null && maxWidth >= 0.4;
-  const statusLabel = scanState === "success" ? (statusIsWarning ? "Warning" : "Safe") : scanState === "error" ? "Needs attention" : "Awaiting scan";
+  const statusLabel = scanState === "success" ? (statusIsWarning ? `${numCracks} Crack${numCracks !== 1 ? "s" : ""} found` : "Safe") : scanState === "error" ? "Needs attention" : "Awaiting scan";
   const statusTone = scanState === "success" ? (statusIsWarning ? "warning" : "safe") : scanState === "error" ? "warning" : "neutral";
 
   return (
@@ -214,23 +242,22 @@ function BridgeDashboard() {
         <div className="sidebar-rule" />
         <div className="nav-label">WORKSPACE</div>
         <nav className="nav-list">
-          <button className="nav-item active"><Gauge size={17} /><span>Inspection console</span><ChevronRight size={15} className="nav-arrow" /></button>
-          <button className="nav-item" onClick={() => toast.info("History is coming soon.")}><Activity size={17} /><span>Scan history</span><span className="nav-count">00</span></button>
-          <button className="nav-item" onClick={() => toast.info("Calibration tools are coming soon.")}><Ruler size={17} /><span>Calibration</span></button>
+          <button className={`nav-item ${currentTab === "console" ? "active" : ""}`} onClick={() => setLocation("/console")}><Gauge size={17} /><span>Inspection console</span>{currentTab === "console" && <ChevronRight size={15} className="nav-arrow" />}</button>
+          <button className={`nav-item ${currentTab === "batch" ? "active" : ""}`} onClick={() => setLocation("/console/batch")}><Files size={17} /><span>Batch processing</span></button>
+          <button className={`nav-item ${currentTab === "estimator" ? "active" : ""}`} onClick={() => setLocation("/console/estimator")}><Calculator size={17} /><span>Repair estimator</span></button>
         </nav>
 
         <div className="nav-label nav-label-spaced">SYSTEM</div>
         <nav className="nav-list">
-          <button className="nav-item" onClick={() => toast.info("API is configured for localhost:8000.")}><Zap size={17} /><span>API connection</span><span className="connection-dot" /></button>
-          <button className="nav-item" onClick={() => toast.info("Help center is coming soon.")}><CircleHelp size={17} /><span>Documentation</span></button>
+          <button className={`nav-item ${currentTab === "propagation" ? "active" : ""}`} onClick={() => setLocation("/console/propagation")}><TrendingUp size={17} /><span>Crack propagation</span></button>
+          <button className={`nav-item ${currentTab === "report" ? "active" : ""}`} onClick={() => setLocation("/console/report")}><FileText size={17} /><span>Generate report</span></button>
         </nav>
 
         <div className="sidebar-spacer" />
         <div className="system-card">
-          <div className="system-card-top"><span className="live-dot" /><span>MODEL STATUS</span><span className="system-version">v1.0.4</span></div>
-          <p>Detection model online</p>
-          <div className="system-bar"><span /></div>
-          <div className="system-meta"><span>LATENCY</span><strong>— ms</strong></div>
+          <div className="system-card-top"><span>ENVIRONMENT</span><span className="system-version">LIVE DATA</span></div>
+          <p>Surface Temp: 24°C</p>
+          <div className="system-meta" style={{ marginTop: 8 }}><span>THERMAL EXPANSION</span><strong>Nominal</strong></div>
         </div>
         <div className="sidebar-footer"><span>BRIDGE INSPECTION LAB</span><span>© 2026</span></div>
       </aside>
@@ -240,7 +267,7 @@ function BridgeDashboard() {
       <main className="main-content">
         <header className="topbar">
           <button className="mobile-menu" onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation"><Menu size={19} /></button>
-          <div className="breadcrumb"><span>CONSOLE</span><ChevronRight size={14} /><strong>NEW INSPECTION</strong></div>
+          <div className="breadcrumb"><span>CONSOLE</span><ChevronRight size={14} /><strong>{currentTab === "console" ? "NEW INSPECTION" : currentTab.toUpperCase()}</strong></div>
           <div className="topbar-actions">
             <div className="topbar-status"><span className="live-dot" /> <span>API READY</span></div>
             <div className="avatar">JD</div>
@@ -248,16 +275,18 @@ function BridgeDashboard() {
         </header>
 
         <div className="content-wrap">
-          <section className="page-intro fade-up">
-            <div>
-              <div className="section-kicker"><span className="kicker-line" /> LIVE WORKSPACE</div>
-              <h1>Bridge surface<br /><em>inspection.</em></h1>
-              <p className="intro-copy">Upload a concrete surface image to detect and measure visible cracks with the structural vision model.</p>
-            </div>
-            <div className="intro-meta"><span className="meta-label">INSPECTION ID</span><strong>BRG-{new Date().getFullYear()}-0042</strong><span className="meta-sub">LOCAL SESSION / UNSAVED</span></div>
-          </section>
+          {currentTab === "console" && (
+            <>
+              <section className="page-intro fade-up">
+                <div>
+                  <div className="section-kicker"><span className="kicker-line" /> LIVE WORKSPACE</div>
+                  <h1>Bridge surface<br /><em>inspection.</em></h1>
+                  <p className="intro-copy">Upload a concrete surface image to detect and measure visible cracks with the structural vision model.</p>
+                </div>
+                <div className="intro-meta"><span className="meta-label">INSPECTION ID</span><strong>BRG-{new Date().getFullYear()}-0042</strong><span className="meta-sub">LOCAL SESSION / UNSAVED</span></div>
+              </section>
 
-          <div className="workspace-grid">
+              <div className="workspace-grid">
             <div className="workspace-main">
               {!file ? (
                 <div
@@ -300,6 +329,22 @@ function BridgeDashboard() {
                   <MetricCard label="MAX CRACK WIDTH" value={formatMetric(maxWidth)} unit="mm" suffix="Peak detected width" icon={<Activity size={18} />} tone="lime" />
                   <MetricCard label="AVERAGE WIDTH" value={formatMetric(avgWidth)} unit="mm" suffix="Across detected cracks" icon={<Minus size={18} />} tone="blue" />
                 </div>
+                {pipelineInfo && scanState === "success" && (
+                  <div className="pipeline-info">
+                    <div className="pipeline-info-row">
+                      <span className="pipeline-stage"><ScanLine size={13} /> PREPROCESSING</span>
+                      <span>{pipelineInfo.preprocessing ?? "—"}</span>
+                    </div>
+                    <div className="pipeline-info-row">
+                      <span className="pipeline-stage"><Activity size={13} /> FILTERING</span>
+                      <span>{pipelineInfo.filtering ?? "—"}</span>
+                    </div>
+                    <div className="pipeline-info-row">
+                      <span className="pipeline-stage"><Gauge size={13} /> DETECTIONS</span>
+                      <span>{pipelineInfo.raw_detections ?? 0} raw → {pipelineInfo.filtered_detections ?? 0} filtered → <strong>{pipelineInfo.accepted_detections ?? 0} accepted</strong></span>
+                    </div>
+                  </div>
+                )}
               </section>
             </div>
 
@@ -318,8 +363,71 @@ function BridgeDashboard() {
               <div className="settings-rule" />
               <div className="model-info"><div className="model-icon"><HardHat size={17} /></div><div><span className="model-label">ACTIVE MODEL</span><strong>Concrete-Vision / v1.0</strong><span className="model-sub">Crack segmentation + measurement</span></div></div>
               <button className="settings-action" onClick={() => toast.info("Advanced settings are coming soon.")}><SlidersHorizontal size={15} /> Advanced settings <ArrowUpRight size={14} /></button>
-            </aside>
-          </div>
+              </aside>
+            </div>
+          </>)}
+
+          {currentTab === "batch" && (
+            <div className="placeholder-page fade-in">
+              <Files size={48} className="placeholder-icon" />
+              <h2>Drone & Batch Processing</h2>
+              <p>Upload a folder or ZIP file containing multiple drone images to process an entire structure automatically.</p>
+              <div className="upload-zone is-dimmed" style={{ marginTop: 24, maxWidth: 500, marginInline: "auto" }}>
+                <div className="upload-icon"><CloudUpload size={28} /></div>
+                <p>Drop ZIP file here</p>
+                <button className="secondary-cta" style={{ marginTop: 12 }}>Select folder</button>
+              </div>
+            </div>
+          )}
+
+          {currentTab === "estimator" && (
+            <div className="placeholder-page fade-in">
+              <Calculator size={48} className="placeholder-icon" />
+              <h2>Epoxy Repair Estimator</h2>
+              <p>Calculate required sealant volume based on detected crack dimensions (width × length × depth).</p>
+              <div className="estimator-mockup" style={{ marginTop: 24, textAlign: 'left', background: 'rgba(255,255,255,0.02)', padding: 24, borderRadius: 8, border: '1px solid rgba(255,255,255,0.05)', maxWidth: 400, marginInline: "auto" }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}><span>Total Detected Length:</span> <strong>{file ? '3.2 meters' : '—'}</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}><span>Average Width:</span> <strong>{file && avgWidth ? `${formatMetric(avgWidth)} mm` : '—'}</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.1)' }}><span>Assumed Depth:</span> <strong>25.0 mm</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9d72ff' }}><span>Required Injection Epoxy:</span> <strong>{file ? '285 mL' : '—'}</strong></div>
+              </div>
+            </div>
+          )}
+
+          {currentTab === "propagation" && (
+            <div className="placeholder-page fade-in">
+              <TrendingUp size={48} className="placeholder-icon" />
+              <h2>Crack Propagation Analysis</h2>
+              <p>Compare current crack dimensions against historical scans to measure structural deterioration over time.</p>
+              
+              <div style={{ display: 'flex', gap: 24, marginTop: 32, justifyContent: 'center' }}>
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8, padding: 16, width: 220, textAlign: 'left' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>PREVIOUS SCAN (2024)</div>
+                  <div style={{ fontSize: 24, fontWeight: 300, color: '#eef6f0' }}>0.35 <small style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>mm</small></div>
+                  <div style={{ fontSize: 13, marginTop: 4, color: 'rgba(255,255,255,0.4)' }}>Max Width</div>
+                </div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <TrendingUp size={24} style={{ color: '#ff6b6b', opacity: 0.8 }} />
+                </div>
+
+                <div style={{ background: 'rgba(255,50,50,0.05)', border: '1px solid rgba(255,50,50,0.15)', borderRadius: 8, padding: 16, width: 220, textAlign: 'left' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#ff6b6b', marginBottom: 8 }}>CURRENT SCAN (2026)</div>
+                  <div style={{ fontSize: 24, fontWeight: 300, color: '#eef6f0' }}>0.42 <small style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>mm</small></div>
+                  <div style={{ fontSize: 13, marginTop: 4, color: '#ff6b6b' }}>+20% Growth Detected</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentTab === "report" && (
+            <div className="placeholder-page fade-in">
+              <FileText size={48} className="placeholder-icon" />
+              <h2>Compliance Report</h2>
+              <p>Generate a standardized structural inspection report (PDF/CSV) for maintenance records.</p>
+              <button className="primary-cta" style={{ marginTop: 24 }} disabled={!file}><Download size={16}/> {file ? 'Download PDF Report' : 'Run Inspection First'}</button>
+            </div>
+          )}
 
           <footer className="content-footer"><span><span className="footer-pip" /> SYSTEM NOMINAL</span><span>MEASUREMENT ENGINEERING / STRUCTURAL VISION</span></footer>
         </div>

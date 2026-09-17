@@ -136,10 +136,24 @@ async def detect_cracks(
         detections = detector.predict_mock(
             image, pixel_to_mm_ratio=pixel_to_mm_ratio
         )
+        pipeline_info = {
+            "preprocessing": "none (mock mode)",
+            "filtering": "none (mock mode)",
+            "raw_detections": len(detections),
+            "filtered_detections": 0,
+            "accepted_detections": len(detections),
+        }
     else:
-        detections = detector.predict(
+        detections, pipeline_info = detector.predict(
             image, pixel_to_mm_ratio=pixel_to_mm_ratio
         )
+
+    logger.info(
+        "Pipeline result: raw=%d  filtered=%d  accepted=%d",
+        pipeline_info.get("raw_detections", 0),
+        pipeline_info.get("filtered_detections", 0),
+        pipeline_info.get("accepted_detections", 0),
+    )
 
     # --- 3. Build annotated image ----------------------------------------
     annotated = image.copy()
@@ -179,5 +193,6 @@ async def detect_cracks(
             "detections": response_detections,
             "image_shape": list(image.shape),
             "annotated_image": annotated_data_uri,
+            "pipeline_info": pipeline_info,
         }
     )

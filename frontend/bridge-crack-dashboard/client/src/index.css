@@ -255,3 +255,10 @@ h2, .settings-head h2 { color: #5e5370; }
 .logo-emblem svg path:first-child { fill: none; stroke: currentColor; stroke-width: 1.5; }
 .logo-emblem svg path:nth-child(2) { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .logo-emblem svg path:last-child { fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; }
+
+/* Pipeline info panel */
+.pipeline-info { margin-top: 16px; background: rgba(14,23,30,.55); border: 1px solid rgba(182,210,194,.10); padding: 14px 16px; font-family: 'DM Mono', monospace; }
+.pipeline-info-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 10px; color: #8ca692; border-bottom: 1px solid rgba(182,210,194,.06); }
+.pipeline-info-row:last-child { border-bottom: none; }
+.pipeline-stage { display: flex; align-items: center; gap: 7px; color: #6d8273; font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
+.pipeline-info-row strong { color: #a4ff9d; }
