@@ -137,6 +137,7 @@ function BridgeDashboard() {
   const [avgWidth, setAvgWidth] = useState<number | null>(null);
   const [numCracks, setNumCracks] = useState(0);
   const [scale, setScale] = useState(0.05);
+  const [threshold, setThreshold] = useState(0.40);
   const [isDragging, setIsDragging] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -223,7 +224,7 @@ function BridgeDashboard() {
     handleFile(event.dataTransfer.files?.[0]);
   };
 
-  const statusIsWarning = maxWidth !== null && maxWidth >= 0.4;
+  const statusIsWarning = maxWidth !== null && maxWidth >= threshold;
   const statusLabel = scanState === "success" ? (statusIsWarning ? `${numCracks} Crack${numCracks !== 1 ? "s" : ""} found` : "Safe") : scanState === "error" ? "Needs attention" : "Awaiting scan";
   const statusTone = scanState === "success" ? (statusIsWarning ? "warning" : "safe") : scanState === "error" ? "warning" : "neutral";
 
@@ -359,10 +360,14 @@ function BridgeDashboard() {
                 <div className="slider-labels"><span>0.01</span><span>0.20</span></div>
               </div>
               <div className="settings-rule" />
-              <div className="setting-block compact"><div className="setting-title-row"><span>Detection threshold</span><span className="threshold-value">0.40 mm</span></div><p className="setting-description">Cracks above this width are flagged as a warning.</p><div className="threshold-track"><span /></div></div>
+              <div className="setting-block compact">
+                <div className="setting-title-row"><label htmlFor="threshold">Detection threshold</label><span className="threshold-value">{threshold.toFixed(2)} mm</span></div>
+                <p className="setting-description">Cracks above this width are flagged as a warning.</p>
+                <input id="threshold" type="range" min="0.10" max="1.50" step="0.05" value={threshold} style={{ "--range-progress": `${((threshold - 0.10) / 1.40) * 100}%` } as CSSProperties} onChange={(event) => setThreshold(Number(event.target.value))} />
+                <div className="slider-labels" style={{ marginTop: 8 }}><span>0.10</span><span>1.50</span></div>
+              </div>
               <div className="settings-rule" />
-              <div className="model-info"><div className="model-icon"><HardHat size={17} /></div><div><span className="model-label">ACTIVE MODEL</span><strong>Concrete-Vision / v1.0</strong><span className="model-sub">Crack segmentation + measurement</span></div></div>
-              <button className="settings-action" onClick={() => toast.info("Advanced settings are coming soon.")}><SlidersHorizontal size={15} /> Advanced settings <ArrowUpRight size={14} /></button>
+              <div className="model-info" style={{ paddingBottom: 12 }}><div className="model-icon"><HardHat size={17} /></div><div><span className="model-label">ACTIVE MODEL</span><strong>Concrete-Vision / v1.0</strong><span className="model-sub">Crack segmentation + measurement</span></div></div>
               </aside>
             </div>
           </>)}
@@ -421,11 +426,63 @@ function BridgeDashboard() {
           )}
 
           {currentTab === "report" && (
-            <div className="placeholder-page fade-in">
-              <FileText size={48} className="placeholder-icon" />
-              <h2>Compliance Report</h2>
-              <p>Generate a standardized structural inspection report (PDF/CSV) for maintenance records.</p>
-              <button className="primary-cta" style={{ marginTop: 24 }} disabled={!file}><Download size={16}/> {file ? 'Download PDF Report' : 'Run Inspection First'}</button>
+            <div className="placeholder-page fade-in" style={file ? { padding: 0, justifyContent: 'flex-start', background: 'transparent' } : {}}>
+              {!file ? (
+                <>
+                  <FileText size={48} className="placeholder-icon" />
+                  <h2>Compliance Report</h2>
+                  <p>Generate a standardized structural inspection report (PDF/CSV) for maintenance records.</p>
+                  <button className="primary-cta" style={{ marginTop: 24 }} disabled={true}><Download size={16}/> Run Inspection First</button>
+                </>
+              ) : (
+                <div style={{ width: '100%', maxWidth: 800, margin: '0 auto', textAlign: 'left', paddingBottom: 60 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                    <h2 style={{ margin: 0, fontSize: 20 }}>Generated Report</h2>
+                    <button className="primary-cta" onClick={() => window.print()}><Download size={16}/> Download PDF</button>
+                  </div>
+                  
+                  <div className="print-report" style={{ background: '#ffffff', color: '#000000', padding: 40, borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+                    <div style={{ borderBottom: '2px solid #000', paddingBottom: 16, marginBottom: 24 }}>
+                      <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, textTransform: 'uppercase' }}>Structural Inspection Report</h1>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, fontSize: 13, color: '#555' }}>
+                        <span><strong>DATE:</strong> {new Date().toLocaleDateString()}</span>
+                        <span><strong>INSPECTOR:</strong> CRACK/SCAN AI v1.0.4</span>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
+                      <div>
+                        <h3 style={{ margin: '0 0 8px 0', fontSize: 14, textTransform: 'uppercase', color: '#666' }}>Scan Metrics</h3>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                          <tbody>
+                            <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '8px 0' }}>Max Crack Width</td><td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatMetric(maxWidth)} mm</td></tr>
+                            <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '8px 0' }}>Avg Crack Width</td><td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatMetric(avgWidth)} mm</td></tr>
+                            <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '8px 0' }}>Total Cracks Detected</td><td style={{ textAlign: 'right', fontWeight: 'bold' }}>{numCracks}</td></tr>
+                            <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '8px 0' }}>Measurement Scale</td><td style={{ textAlign: 'right', fontWeight: 'bold' }}>{scale.toFixed(2)} mm/px</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h3 style={{ margin: '0 0 8px 0', fontSize: 14, textTransform: 'uppercase', color: '#666' }}>Assessment</h3>
+                        <div style={{ background: statusIsWarning ? '#fff3f3' : '#f0fdf4', padding: 16, borderRadius: 4, border: `1px solid ${statusIsWarning ? '#fca5a5' : '#bbf7d0'}` }}>
+                          <strong style={{ color: statusIsWarning ? '#dc2626' : '#166534', fontSize: 16, display: 'block', marginBottom: 4 }}>{statusIsWarning ? 'WARNING: REVIEW REQUIRED' : 'SAFE: WITHIN TOLERANCE'}</strong>
+                          <p style={{ margin: 0, fontSize: 13, color: statusIsWarning ? '#991b1b' : '#14532d' }}>
+                            {statusIsWarning 
+                              ? `Detected crack width (${formatMetric(maxWidth)}mm) exceeds the safety threshold of ${threshold.toFixed(2)}mm.` 
+                              : `All detected cracks are below the safety threshold of ${threshold.toFixed(2)}mm.`}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <h3 style={{ margin: '0 0 12px 0', fontSize: 14, textTransform: 'uppercase', color: '#666' }}>Analyzed Surface</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                      {originalPreview && <div><img src={originalPreview} style={{ width: '100%', borderRadius: 4, border: '1px solid #ddd' }} alt="Original" /><div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>Source Image</div></div>}
+                      {processedPreview && <div><img src={processedPreview} style={{ width: '100%', borderRadius: 4, border: '1px solid #ddd' }} alt="Processed" /><div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>Detection Mask</div></div>}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
