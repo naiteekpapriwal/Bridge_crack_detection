@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+datasets/
+runs/
+*.pt
+!models/crack_seg_best.pt
+.DS_Store
