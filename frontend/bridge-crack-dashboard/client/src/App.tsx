@@ -97,44 +97,79 @@ function LandingPage() {
             <div className="hero-actions"><Link href="/console" className="primary-cta">Start an inspection <ArrowUpRight size={16} /></Link><a href="#how-it-works" className="secondary-cta">Explore the workflow <ChevronRight size={15} /></a></div>
             <div className="hero-proof"><div className="proof-avatars"><span>AS</span><span>ME</span><span>+4</span></div><div><strong>Built for the field</strong><small>Clear output for every inspection team</small></div></div>
           </div>
-          <div className="hero-visual" aria-label="Illustration of a bridge inspection scan">
-            <div className="hero-visual-glow" />
-            <div className="visual-grid" />
-            <div className="visual-topline"><span>LIVE STRUCTURAL MODEL</span><span><span className="hero-live-dot" /> READY</span></div>
-            <div className="bridge-scene abstract-scene" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4))', overflow: 'hidden', border: '1px solid rgba(157,114,255,0.3)', borderRadius: 8, boxShadow: 'inset 0 0 20px rgba(157,114,255,0.05)' }}>
-              {/* High-tech grid background */}
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(157, 114, 255, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(157, 114, 255, 0.15) 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.6 }} />
+          <div className="hero-visual" style={{ background: 'transparent', border: 'none', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* Premium Dashboard UI Mockup */}
+            <div style={{ width: '100%', height: '380px', background: '#0a0b10', borderRadius: 12, border: '1px solid #232533', boxShadow: '0 30px 60px rgba(0,0,0,0.15), 0 0 0 6px rgba(255,255,255,0.4)', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
               
-              {/* Simulated crack vectors */}
-              <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, filter: 'drop-shadow(0 0 4px rgba(122, 108, 193, 0.3))' }}>
-                {/* Minor crack */}
-                <path d="M 120 40 L 140 100 L 110 160 L 160 210 L 150 260 L 190 320" fill="none" stroke="#7a6cc1" strokeWidth="2" strokeDasharray="4,4" />
-                {/* Major crack */}
-                <path d="M 280 80 L 260 140 L 290 190 L 270 250 L 320 310" fill="none" stroke="#ff6b6b" strokeWidth="4" />
+              {/* Window chrome / header */}
+              <div style={{ height: 44, borderBottom: '1px solid #1a1d27', display: 'flex', alignItems: 'center', padding: '0 16px', gap: 8, background: '#11121a' }}>
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f56' }} />
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ffbd2e' }} />
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#27c93f' }} />
+                <div style={{ margin: '0 auto', fontSize: 11, color: '#687282', fontFamily: 'monospace', letterSpacing: '0.05em' }}>/workspace/bridge_inspection_492.raw</div>
+              </div>
+              
+              {/* Mockup body */}
+              <div style={{ flex: 1, display: 'flex' }}>
                 
-                {/* Measurement nodes */}
-                <circle cx="110" cy="160" r="4" fill="#7a6cc1" />
-                <circle cx="290" cy="190" r="5" fill="#ff6b6b" />
-                <circle cx="270" cy="250" r="5" fill="#ff6b6b" />
-              </svg>
-              
-              {/* Scanning beam effect */}
-              <div className="scan-beam" style={{ background: 'linear-gradient(to bottom, transparent, rgba(157, 114, 255, 0.1))', borderBottom: '1.5px solid #7a6cc1', zIndex: 10 }} />
-              
-              {/* Overlay Targets */}
-              <div className="scan-target target-one" style={{ top: '150px', left: '125px', color: '#7a6cc1' }}><span style={{ borderColor: '#7a6cc1', background: 'transparent' }} /><b style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(122,108,193,0.3)', color: '#7a6cc1' }}>0.18 mm</b></div>
-              <div className="scan-target target-two" style={{ top: '180px', left: '305px', color: '#ff6b6b' }}><span style={{ borderColor: '#ff6b6b', background: 'transparent' }} /><b style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,107,107,0.3)', color: '#ff6b6b' }}>0.42 mm</b></div>
-              
-              {/* Telemetry data */}
-              <div style={{ position: 'absolute', bottom: 16, right: 16, fontFamily: 'monospace', fontSize: 10, color: '#7a6cc1', textAlign: 'right', lineHeight: 1.6, zIndex: 5 }}>
-                <div>&gt; INGESTING SURFACE_MAP... [OK]</div>
-                <div>&gt; CNN_EXTRACT(LAYERS=52)... [OK]</div>
-                <div>&gt; VECTOR_OVERLAY_ACTIVE</div>
+                {/* Mockup sidebar */}
+                <div style={{ width: 64, borderRight: '1px solid #1a1d27', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 20, gap: 16, background: '#0a0b10' }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(157, 114, 255, 0.15)', border: '1px solid rgba(157,114,255,0.4)', display: 'grid', placeItems: 'center' }}>
+                    <div style={{ width: 14, height: 14, border: '1.5px solid #9d72ff', borderRadius: 3 }} />
+                  </div>
+                  <div style={{ width: 28, height: 28, borderRadius: 6, background: '#151722' }} />
+                  <div style={{ width: 28, height: 28, borderRadius: 6, background: '#151722' }} />
+                </div>
+                
+                {/* Mockup main area */}
+                <div style={{ flex: 1, padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                      <div style={{ width: 42, height: 42, borderRadius: 8, background: 'linear-gradient(135deg, #9d72ff, #5c3bba)' }} />
+                      <div>
+                        <div style={{ width: 140, height: 8, background: '#232533', borderRadius: 4, marginBottom: 10 }} />
+                        <div style={{ width: 90, height: 6, background: '#1a1d27', borderRadius: 3 }} />
+                      </div>
+                    </div>
+                    <div style={{ width: 90, height: 30, borderRadius: 15, background: 'rgba(39, 201, 63, 0.1)', border: '1px solid rgba(39, 201, 63, 0.3)', color: '#27c93f', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, letterSpacing: '0.05em' }}>SAFE STATUS</div>
+                  </div>
+                  
+                  {/* Analysis preview block */}
+                  <div style={{ flex: 1, borderRadius: 8, border: '1px solid #232533', background: '#050508', position: 'relative', overflow: 'hidden' }}>
+                    
+                    {/* Grid */}
+                    <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(#151722 1px, transparent 1px), linear-gradient(90deg, #151722 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+                    
+                    {/* Fake structural cracks on the dark canvas */}
+                    <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
+                      <path d="M 120 30 L 140 80 L 110 130 L 150 180" fill="none" stroke="#27c93f" strokeWidth="2.5" filter="drop-shadow(0 0 6px #27c93f)" />
+                      <circle cx="125" cy="105" r="16" fill="none" stroke="rgba(39, 201, 63, 0.5)" strokeWidth="1" strokeDasharray="3,3" />
+                      <text x="150" y="108" fill="#27c93f" fontSize="11" fontFamily="monospace">0.12mm</text>
+                      
+                      <path d="M 280 50 L 260 110 L 300 160 L 280 200" fill="none" stroke="#27c93f" strokeWidth="2.5" filter="drop-shadow(0 0 6px #27c93f)" />
+                      <circle cx="280" cy="135" r="16" fill="none" stroke="rgba(39, 201, 63, 0.5)" strokeWidth="1" strokeDasharray="3,3" />
+                      <text x="305" y="138" fill="#27c93f" fontSize="11" fontFamily="monospace">0.18mm</text>
+                    </svg>
+                    
+                    {/* Animated scanning overlay */}
+                    <div className="hero-scanner" style={{ position: 'absolute', top: 0, bottom: 0, width: 120, background: 'linear-gradient(90deg, transparent, rgba(157, 114, 255, 0.15))', borderRight: '2px solid #9d72ff', filter: 'drop-shadow(0 0 8px #9d72ff)' }} />
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="visual-footer"><span>FRAME 001 / CONCRETE SURFACE</span><strong>AI ANALYSIS</strong></div>
-            <div className="hero-floating-card floating-status"><span className="floating-icon mint"><ShieldCheck size={15} /></span><span><small>STRUCTURAL STATUS</small><strong>Within threshold</strong></span></div>
-            <div className="hero-floating-card floating-measure"><span className="floating-icon peach"><Ruler size={15} /></span><span><small>MAX CRACK WIDTH</small><strong>0.18 <i>mm</i></strong></span></div>
+            
+            {/* Inline CSS animation for the scanner */}
+            <style dangerouslySetInnerHTML={{__html: `
+              .hero-scanner {
+                animation: scan-anim 3s infinite linear;
+              }
+              @keyframes scan-anim {
+                0% { left: -120px; opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { left: 100%; opacity: 0; }
+              }
+            `}} />
           </div>
         </section>
 
