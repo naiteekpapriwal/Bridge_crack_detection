@@ -101,32 +101,32 @@ function LandingPage() {
             <div className="hero-visual-glow" />
             <div className="visual-grid" />
             <div className="visual-topline"><span>LIVE STRUCTURAL MODEL</span><span><span className="hero-live-dot" /> READY</span></div>
-            <div className="bridge-scene abstract-scene" style={{ background: '#0d0d12', overflow: 'hidden', position: 'relative', height: '100%', border: '1px solid rgba(157,114,255,0.2)' }}>
+            <div className="bridge-scene abstract-scene" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4))', overflow: 'hidden', border: '1px solid rgba(157,114,255,0.3)', borderRadius: 8, boxShadow: 'inset 0 0 20px rgba(157,114,255,0.05)' }}>
               {/* High-tech grid background */}
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(157, 114, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(157, 114, 255, 0.1) 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.5 }} />
+              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(157, 114, 255, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(157, 114, 255, 0.15) 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.6 }} />
               
               {/* Simulated crack vectors */}
-              <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, filter: 'drop-shadow(0 0 6px rgba(157, 114, 255, 0.4))' }}>
+              <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, filter: 'drop-shadow(0 0 4px rgba(122, 108, 193, 0.3))' }}>
                 {/* Minor crack */}
-                <path d="M 120 40 L 140 100 L 110 160 L 160 210 L 150 260 L 190 320" fill="none" stroke="#9d72ff" strokeWidth="2" strokeDasharray="4,4" />
+                <path d="M 120 40 L 140 100 L 110 160 L 160 210 L 150 260 L 190 320" fill="none" stroke="#7a6cc1" strokeWidth="2" strokeDasharray="4,4" />
                 {/* Major crack */}
                 <path d="M 280 80 L 260 140 L 290 190 L 270 250 L 320 310" fill="none" stroke="#ff6b6b" strokeWidth="4" />
                 
                 {/* Measurement nodes */}
-                <circle cx="110" cy="160" r="4" fill="#9d72ff" />
+                <circle cx="110" cy="160" r="4" fill="#7a6cc1" />
                 <circle cx="290" cy="190" r="5" fill="#ff6b6b" />
                 <circle cx="270" cy="250" r="5" fill="#ff6b6b" />
               </svg>
               
               {/* Scanning beam effect */}
-              <div className="scan-beam" style={{ background: 'linear-gradient(to bottom, transparent, rgba(157, 114, 255, 0.15))', borderBottom: '1.5px solid #9d72ff', zIndex: 10 }} />
+              <div className="scan-beam" style={{ background: 'linear-gradient(to bottom, transparent, rgba(157, 114, 255, 0.1))', borderBottom: '1.5px solid #7a6cc1', zIndex: 10 }} />
               
               {/* Overlay Targets */}
-              <div className="scan-target target-one" style={{ top: '150px', left: '125px', color: '#9d72ff' }}><span style={{ borderColor: '#9d72ff', background: 'transparent' }} /><b style={{ background: 'rgba(157,114,255,0.1)', border: '1px solid rgba(157,114,255,0.3)', color: '#9d72ff' }}>0.18 mm</b></div>
-              <div className="scan-target target-two" style={{ top: '180px', left: '305px', color: '#ff6b6b' }}><span style={{ borderColor: '#ff6b6b', background: 'transparent' }} /><b style={{ background: 'rgba(255,107,107,0.1)', border: '1px solid rgba(255,107,107,0.3)', color: '#ff6b6b' }}>0.42 mm</b></div>
+              <div className="scan-target target-one" style={{ top: '150px', left: '125px', color: '#7a6cc1' }}><span style={{ borderColor: '#7a6cc1', background: 'transparent' }} /><b style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(122,108,193,0.3)', color: '#7a6cc1' }}>0.18 mm</b></div>
+              <div className="scan-target target-two" style={{ top: '180px', left: '305px', color: '#ff6b6b' }}><span style={{ borderColor: '#ff6b6b', background: 'transparent' }} /><b style={{ background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,107,107,0.3)', color: '#ff6b6b' }}>0.42 mm</b></div>
               
               {/* Telemetry data */}
-              <div style={{ position: 'absolute', bottom: 16, right: 16, fontFamily: 'monospace', fontSize: 10, color: 'rgba(157,114,255,0.7)', textAlign: 'right', lineHeight: 1.6, zIndex: 5 }}>
+              <div style={{ position: 'absolute', bottom: 16, right: 16, fontFamily: 'monospace', fontSize: 10, color: '#7a6cc1', textAlign: 'right', lineHeight: 1.6, zIndex: 5 }}>
                 <div>&gt; INGESTING SURFACE_MAP... [OK]</div>
                 <div>&gt; CNN_EXTRACT(LAYERS=52)... [OK]</div>
                 <div>&gt; VECTOR_OVERLAY_ACTIVE</div>
