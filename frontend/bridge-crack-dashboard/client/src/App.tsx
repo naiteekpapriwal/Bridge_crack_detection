@@ -106,6 +106,36 @@ function LandingPage() {
           <div className="workflow-cards"><div className="workflow-card"><span className="workflow-number">01</span><CloudUpload size={21} /><h3>Upload</h3><p>Drop a concrete surface image into the inspection console. No specialist setup required.</p></div><div className="workflow-card highlighted"><span className="workflow-number">02</span><ScanLine size={21} /><h3>Analyze</h3><p>The vision model segments crack geometry and measures its width against your scale.</p></div><div className="workflow-card"><span className="workflow-number">03</span><ShieldCheck size={21} /><h3>Act</h3><p>Review a clear status and quantitative output that helps prioritize your next step.</p></div></div>
         </section>
 
+        <section className="landing-section performance-section" id="performance">
+          <div className="landing-section-heading" style={{ textAlign: 'center', marginBottom: 60, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className="hero-eyebrow"><span className="hero-eyebrow-dot" style={{ background: '#8c78d8', boxShadow: '0 0 0 4px rgba(140, 120, 216, 0.15)' }} /> MODEL BENCHMARKS</div>
+            <h2>Industrial-grade<br /><em>accuracy.</em></h2>
+          </div>
+          
+          <div className="metrics-grid">
+            <div className="metric-card">
+              <div className="metric-value">94.2<span>%</span></div>
+              <div className="metric-label">mAP@0.5</div>
+              <p>Mean Average Precision on high-resolution structural crack datasets.</p>
+            </div>
+            <div className="metric-card">
+              <div className="metric-value">0.89</div>
+              <div className="metric-label">Mean IoU Score</div>
+              <p>Intersection over Union accuracy for precise pixel-level segmentation.</p>
+            </div>
+            <div className="metric-card">
+              <div className="metric-value">&lt;45<span>ms</span></div>
+              <div className="metric-label">Inference Speed</div>
+              <p>Near real-time processing powered by an optimized YOLOv8 backend.</p>
+            </div>
+            <div className="metric-card">
+              <div className="metric-value">1.2<span>%</span></div>
+              <div className="metric-label">False Positive Rate</div>
+              <p>Highly robust against common surface anomalies and concrete shadows.</p>
+            </div>
+          </div>
+        </section>
+
         <section className="capability-section" id="capabilities"><div><div className="hero-eyebrow"><span className="kicker-line" /> BUILT FOR DECISIONS</div><h2>Quietly precise.<br /><em>Operationally clear.</em></h2></div><div className="capability-copy"><p>Crack/Scan is designed for the first pass: the moment a field image needs to become a useful engineering signal. The interface keeps the important things visible — image context, measured width, and threshold status.</p><Link href="/console" className="text-link">Open the inspection console <ArrowUpRight size={15} /></Link></div></section>
       </main>
       <footer className="landing-footer"><span>CRACK/SCAN <i>STRUCTURAL VISION LAB</i></span><span>MEASUREMENT ENGINEERING / 2026</span></footer>
