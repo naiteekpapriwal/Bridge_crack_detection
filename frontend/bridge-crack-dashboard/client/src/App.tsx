@@ -28,6 +28,8 @@ import {
   Settings2,
   ShieldCheck,
   SlidersHorizontal,
+  Snowflake,
+  Thermometer,
   UploadCloud,
   X,
   Zap,
@@ -157,6 +159,13 @@ function BridgeDashboard() {
   const [threshold, setThreshold] = useState(0.40);
   const [isDragging, setIsDragging] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [autoCalibrate, setAutoCalibrate] = useState(false);
+  const [markerSize, setMarkerSize] = useState(50);
+  const [severityData, setSeverityData] = useState<{ severity_score?: number; severity_level?: string; severity_label?: string; action?: string; urgency?: string; factor_breakdown?: any } | null>(null);
+  const [calibrationInfo, setCalibrationInfo] = useState<{ method?: string; pixel_to_mm?: number; confidence?: number; message?: string } | null>(null);
+  const [thermalData, setThermalData] = useState<any>(null);
+  const [envTemp, setEnvTemp] = useState<string>("");
+  const [envHumidity, setEnvHumidity] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
   const [location, setLocation] = useLocation();
 
@@ -172,12 +181,20 @@ function BridgeDashboard() {
       setNumCracks(0);
       setErrorMessage("");
       setPipelineInfo(null);
+      setSeverityData(null);
+      setCalibrationInfo(null);
+      setThermalData(null);
       setScanState("loading");
 
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("pixel_to_mm_ratio", String(scale));
       formData.append("use_mock", "false"); // Using real model weights
+      formData.append("auto_calibrate_enabled", String(autoCalibrate));
+      formData.append("marker_size_mm", String(markerSize));
+      // Environmental / thermal parameters
+      if (envTemp) formData.append("temperature_c", envTemp);
+      if (envHumidity) formData.append("humidity_pct", envHumidity);
 
       try {
         const response = await fetch(API_ENDPOINT, {
@@ -199,14 +216,26 @@ function BridgeDashboard() {
           const avgW = allDetections.reduce((sum: number, d: any) => sum + (d.measurements?.mean_width_mm ?? 0), 0) / allDetections.length;
           setMaxWidth(maxW);
           setAvgWidth(avgW);
+
+          // Use worst severity from all detections
+          const worstSeverity = allDetections.reduce((worst: any, d: any) => {
+            const s = d.severity;
+            if (!s) return worst;
+            if (!worst || (s.severity_score ?? 0) > (worst.severity_score ?? 0)) return s;
+            return worst;
+          }, null);
+          setSeverityData(worstSeverity);
         } else {
           setMaxWidth(null);
           setAvgWidth(null);
+          setSeverityData(null);
         }
         
         // The backend directly returns a data URI now, so we can use it directly
         setProcessedPreview(result.annotated_image || null);
         setPipelineInfo(result.pipeline_info || null);
+        setCalibrationInfo(result.calibration || null);
+        setThermalData(result.thermal_analysis || null);
         setScanState("success");
         toast.success("Analysis complete", {
           description: result.pipeline_info
@@ -220,7 +249,7 @@ function BridgeDashboard() {
         toast.error("Analysis unavailable", { description: "The image is loaded, but the detection API could not be reached." });
       }
     },
-    [scale],
+    [scale, autoCalibrate, markerSize, envTemp, envHumidity],
   );
 
   const handleFile = useCallback(
@@ -347,6 +376,99 @@ function BridgeDashboard() {
                   <MetricCard label="MAX CRACK WIDTH" value={formatMetric(maxWidth)} unit="mm" suffix="Peak detected width" icon={<Activity size={18} />} tone="lime" />
                   <MetricCard label="AVERAGE WIDTH" value={formatMetric(avgWidth)} unit="mm" suffix="Across detected cracks" icon={<Minus size={18} />} tone="blue" />
                 </div>
+                {severityData && scanState === "success" && (
+                  <div className={`severity-card severity-${severityData.severity_level}`}>
+                    <div className="severity-header">
+                      <div className="severity-score-ring">
+                        <svg viewBox="0 0 36 36" className="severity-gauge">
+                          <path className="severity-gauge-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                          <path className="severity-gauge-fill" strokeDasharray={`${severityData.severity_score ?? 0}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span className="severity-score-text">{Math.round(severityData.severity_score ?? 0)}</span>
+                      </div>
+                      <div className="severity-info">
+                        <span className="severity-level-badge">{severityData.severity_label ?? "Unknown"}</span>
+                        <span className="severity-urgency"><Zap size={12} /> {severityData.urgency ?? "N/A"}</span>
+                      </div>
+                    </div>
+                    <div className="severity-action">
+                      <AlertTriangle size={14} />
+                      <span>{severityData.action ?? "No recommendation available."}</span>
+                    </div>
+                    {severityData.factor_breakdown && (
+                      <div className="severity-factors">
+                        <div className="factor-bar"><span>Width</span><div className="factor-track"><div className="factor-fill" style={{ width: `${severityData.factor_breakdown.width_score}%` }} /></div><span>{severityData.factor_breakdown.width_score}</span></div>
+                        <div className="factor-bar"><span>Length</span><div className="factor-track"><div className="factor-fill" style={{ width: `${severityData.factor_breakdown.length_score}%` }} /></div><span>{severityData.factor_breakdown.length_score}</span></div>
+                        <div className="factor-bar"><span>Branching</span><div className="factor-track"><div className="factor-fill" style={{ width: `${severityData.factor_breakdown.branching_score}%` }} /></div><span>{severityData.factor_breakdown.branching_score}</span></div>
+                        <div className="factor-bar"><span>Density</span><div className="factor-track"><div className="factor-fill" style={{ width: `${severityData.factor_breakdown.density_score}%` }} /></div><span>{severityData.factor_breakdown.density_score}</span></div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {calibrationInfo && scanState === "success" && (
+                  <div className="calibration-info">
+                    <div className="calibration-header">
+                      <Ruler size={14} />
+                      <span>CALIBRATION: <strong>{calibrationInfo.method?.toUpperCase()}</strong></span>
+                      {calibrationInfo.confidence !== undefined && <span className="calibration-confidence">{Math.round(calibrationInfo.confidence * 100)}% confidence</span>}
+                    </div>
+                    <p className="calibration-message">{calibrationInfo.message}</p>
+                    {calibrationInfo.pixel_to_mm !== undefined && <div className="calibration-ratio">Effective scale: <strong>{calibrationInfo.pixel_to_mm.toFixed(4)} mm/px</strong></div>}
+                  </div>
+                )}
+
+                {thermalData && scanState === "success" && (
+                  <div className={`thermal-card thermal-${thermalData.risk_level}`}>
+                    <div className="thermal-header">
+                      <Thermometer size={16} />
+                      <span className="thermal-title">Environmental Stress Analysis</span>
+                      <span className={`thermal-risk-badge risk-${thermalData.risk_level}`}>{thermalData.risk_level?.toUpperCase()} RISK</span>
+                    </div>
+
+                    <div className="thermal-weather">
+                      <div className="thermal-weather-item">
+                        <span className="thermal-weather-value">{thermalData.weather?.temperature_c ?? "—"}°C</span>
+                        <span className="thermal-weather-label">Temperature</span>
+                      </div>
+                      <div className="thermal-weather-item">
+                        <span className="thermal-weather-value">{thermalData.weather?.humidity_pct ?? "—"}%</span>
+                        <span className="thermal-weather-label">Humidity</span>
+                      </div>
+                      <div className="thermal-weather-item">
+                        <span className="thermal-weather-value">×{thermalData.severity_multiplier}</span>
+                        <span className="thermal-weather-label">Sev. Multiplier</span>
+                      </div>
+                    </div>
+
+                    <div className="thermal-scores">
+                      <div className="factor-bar"><span><Thermometer size={10} /> Thermal</span><div className="factor-track"><div className="factor-fill" style={{ width: `${thermalData.thermal_risk_score}%` }} /></div><span>{thermalData.thermal_risk_score}</span></div>
+                      <div className="factor-bar"><span><Droplets size={10} /> Humidity</span><div className="factor-track"><div className="factor-fill" style={{ width: `${thermalData.humidity_risk_score}%` }} /></div><span>{thermalData.humidity_risk_score}</span></div>
+                      <div className="factor-bar"><span><Snowflake size={10} /> Freeze-thaw</span><div className="factor-track"><div className="factor-fill" style={{ width: `${thermalData.freeze_thaw_risk}%` }} /></div><span>{thermalData.freeze_thaw_risk}</span></div>
+                    </div>
+
+                    {thermalData.width_correction_mm !== 0 && (
+                      <div className="thermal-correction">
+                        <Ruler size={12} />
+                        <span>Width corrected: {thermalData.measured_width_mm?.toFixed(4)} → <strong>{thermalData.normalized_width_mm?.toFixed(4)} mm</strong> (at 20°C reference)</span>
+                      </div>
+                    )}
+
+                    <div className="thermal-advisory">
+                      <AlertTriangle size={13} />
+                      <span>{thermalData.advisory}</span>
+                    </div>
+
+                    {thermalData.factors && thermalData.factors.length > 0 && (
+                      <div className="thermal-factors-list">
+                        {thermalData.factors.map((f: string, i: number) => (
+                          <div key={i} className="thermal-factor-item">{f}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {pipelineInfo && scanState === "success" && (
                   <div className="pipeline-info">
                     <div className="pipeline-info-row">
@@ -384,7 +506,39 @@ function BridgeDashboard() {
                 <div className="slider-labels" style={{ marginTop: 8 }}><span>0.10</span><span>1.50</span></div>
               </div>
               <div className="settings-rule" />
-              <div className="model-info" style={{ paddingBottom: 12 }}><div className="model-icon"><HardHat size={17} /></div><div><span className="model-label">ACTIVE MODEL</span><strong>Concrete-Vision / v1.0</strong><span className="model-sub">Crack segmentation + measurement</span></div></div>
+              <div className="setting-block compact">
+                <div className="setting-title-row"><label>Auto-calibration</label><span className="help-icon" title="Automatically detect ArUco markers in the image for precise mm/px scaling"><CircleHelp size={14} /></span></div>
+                <p className="setting-description">Detect ArUco reference markers for accurate physical measurements.</p>
+                <div className="toggle-row">
+                  <button className={`toggle-switch ${autoCalibrate ? 'active' : ''}`} onClick={() => setAutoCalibrate(!autoCalibrate)} role="switch" aria-checked={autoCalibrate}>
+                    <span className="toggle-knob" />
+                  </button>
+                  <span className="toggle-label">{autoCalibrate ? 'Enabled' : 'Disabled'}</span>
+                </div>
+                {autoCalibrate && (
+                  <div style={{ marginTop: 12 }}>
+                    <label className="setting-description" htmlFor="marker-size" style={{ display: 'block', marginBottom: 4 }}>Marker size (mm):</label>
+                    <input id="marker-size" type="number" min="10" max="200" value={markerSize} onChange={(e) => setMarkerSize(Number(e.target.value))} className="marker-input" />
+                  </div>
+                )}
+              </div>
+              <div className="settings-rule" />
+              <div className="setting-block compact">
+                <div className="setting-title-row"><label><Thermometer size={14} /> Environment</label><span className="help-icon" title="Provide ambient temperature and humidity for thermal expansion correction"><CircleHelp size={14} /></span></div>
+                <p className="setting-description">Apply IS 456 thermal expansion correction to severity scores.</p>
+                <div className="env-inputs">
+                  <div className="env-field">
+                    <label htmlFor="env-temp">Temp (°C)</label>
+                    <input id="env-temp" type="number" placeholder="e.g. 35" value={envTemp} onChange={(e) => setEnvTemp(e.target.value)} className="marker-input" />
+                  </div>
+                  <div className="env-field">
+                    <label htmlFor="env-hum">Humidity (%)</label>
+                    <input id="env-hum" type="number" placeholder="e.g. 70" value={envHumidity} onChange={(e) => setEnvHumidity(e.target.value)} className="marker-input" />
+                  </div>
+                </div>
+              </div>
+              <div className="settings-rule" />
+              <div className="model-info" style={{ paddingBottom: 12 }}><div className="model-icon"><HardHat size={17} /></div><div><span className="model-label">ACTIVE MODEL</span><strong>Concrete-Vision / v1.0</strong><span className="model-sub">Crack segmentation + severity + thermal</span></div></div>
               </aside>
             </div>
           </>)}

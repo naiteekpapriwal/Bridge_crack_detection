@@ -264,3 +264,93 @@ h2, .settings-head h2 { color: #5e5370; }
 .pipeline-info-row:last-child { border-bottom: none; }
 .pipeline-stage { display: flex; align-items: center; gap: 7px; color: #6d8273; font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
 .pipeline-info-row strong { color: #a4ff9d; }
+
+/* ─── Severity Classification Card ─── */
+.severity-card { margin-top: 16px; background: rgba(14,23,30,.55); border: 1px solid rgba(182,210,194,.10); border-radius: 6px; padding: 16px; }
+.severity-header { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.severity-score-ring { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+.severity-gauge { width: 100%; height: 100%; transform: rotate(-90deg); }
+.severity-gauge-bg { fill: none; stroke: rgba(255,255,255,.08); stroke-width: 3; }
+.severity-gauge-fill { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; transition: stroke-dasharray .6s ease; }
+.severity-score-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: currentColor; }
+.severity-info { display: flex; flex-direction: column; gap: 6px; }
+.severity-level-badge { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: currentColor; }
+.severity-urgency { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,.5); display: flex; align-items: center; gap: 5px; letter-spacing: .04em; }
+.severity-action { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; background: rgba(255,255,255,.04); border-radius: 4px; margin-bottom: 14px; font-size: 11px; line-height: 1.5; color: rgba(255,255,255,.7); }
+.severity-action svg { flex-shrink: 0; margin-top: 1px; color: currentColor; opacity: .7; }
+
+/* Severity factor breakdown bars */
+.severity-factors { display: flex; flex-direction: column; gap: 6px; }
+.factor-bar { display: grid; grid-template-columns: 68px 1fr 32px; align-items: center; gap: 8px; font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,.45); }
+.factor-track { height: 4px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; }
+.factor-fill { height: 100%; background: currentColor; border-radius: 2px; transition: width .5s ease; opacity: .7; }
+.factor-bar span:last-child { text-align: right; color: rgba(255,255,255,.55); }
+
+/* Severity colour themes */
+.severity-hairline { color: #4ade80; border-color: rgba(74,222,128,.2); }
+.severity-minor    { color: #facc15; border-color: rgba(250,204,21,.2); }
+.severity-moderate { color: #fb923c; border-color: rgba(251,146,60,.2); }
+.severity-severe   { color: #f87171; border-color: rgba(248,113,113,.2); }
+
+/* ─── Calibration Info ─── */
+.calibration-info { margin-top: 16px; background: rgba(14,23,30,.55); border: 1px solid rgba(182,210,194,.10); border-radius: 6px; padding: 14px 16px; font-family: 'DM Mono', monospace; }
+.calibration-header { display: flex; align-items: center; gap: 8px; font-size: 10px; color: #6d8273; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+.calibration-header strong { color: #8aff9b; }
+.calibration-confidence { margin-left: auto; color: #8aff9b; font-size: 10px; background: rgba(138,255,155,.08); padding: 2px 8px; border-radius: 3px; }
+.calibration-message { font-size: 11px; color: rgba(255,255,255,.55); line-height: 1.5; margin: 0 0 8px 0; }
+.calibration-ratio { font-size: 11px; color: #8ca692; }
+.calibration-ratio strong { color: #a4ff9d; }
+
+/* ─── Toggle Switch ─── */
+.toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.toggle-switch { position: relative; width: 40px; height: 22px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 11px; cursor: pointer; transition: background .2s, border-color .2s; padding: 0; }
+.toggle-switch.active { background: rgba(138,255,155,.18); border-color: rgba(138,255,155,.35); }
+.toggle-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: rgba(255,255,255,.4); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch.active .toggle-knob { transform: translateX(18px); background: #8aff9b; }
+.toggle-label { font-size: 11px; color: rgba(255,255,255,.5); font-family: 'DM Mono', monospace; }
+
+/* Marker size input */
+.marker-input { width: 80px; padding: 6px 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 4px; color: #eef6f0; font-family: 'DM Mono', monospace; font-size: 12px; }
+.marker-input:focus { outline: none; border-color: rgba(138,255,155,.35); }
+
+/* ─── Thermal / Environmental Analysis Card ─── */
+.thermal-card { margin-top: 16px; background: rgba(14,23,30,.55); border: 1px solid rgba(182,210,194,.10); border-radius: 6px; padding: 16px; }
+.thermal-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.thermal-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; color: rgba(255,255,255,.7); letter-spacing: .04em; }
+.thermal-risk-badge { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em; padding: 3px 10px; border-radius: 3px; font-weight: 600; }
+.risk-minimal  { background: rgba(74,222,128,.12); color: #4ade80; }
+.risk-low      { background: rgba(74,222,128,.12); color: #4ade80; }
+.risk-moderate { background: rgba(250,204,21,.12); color: #facc15; }
+.risk-high     { background: rgba(251,146,60,.12); color: #fb923c; }
+.risk-critical { background: rgba(248,113,113,.15); color: #f87171; }
+
+.thermal-weather { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.thermal-weather-item { text-align: center; padding: 10px 6px; background: rgba(255,255,255,.03); border-radius: 4px; border: 1px solid rgba(255,255,255,.06); }
+.thermal-weather-value { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: rgba(255,255,255,.85); }
+.thermal-weather-label { display: block; font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(255,255,255,.35); letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; }
+
+.thermal-scores { margin-bottom: 12px; }
+.thermal-correction { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(138,255,155,.05); border: 1px solid rgba(138,255,155,.12); border-radius: 4px; margin-bottom: 12px; font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,.55); }
+.thermal-correction strong { color: #a4ff9d; }
+
+.thermal-advisory { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; background: rgba(255,255,255,.03); border-radius: 4px; font-size: 11px; line-height: 1.5; color: rgba(255,255,255,.6); margin-bottom: 10px; }
+.thermal-advisory svg { flex-shrink: 0; margin-top: 2px; opacity: .6; }
+
+.thermal-factors-list { display: flex; flex-direction: column; gap: 4px; }
+.thermal-factor-item { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,.45); padding: 4px 8px; background: rgba(255,255,255,.02); border-radius: 3px; }
+
+/* Thermal risk colour overrides */
+.thermal-minimal  { border-color: rgba(74,222,128,.15); }
+.thermal-low      { border-color: rgba(74,222,128,.15); }
+.thermal-moderate { border-color: rgba(250,204,21,.15); }
+.thermal-high     { border-color: rgba(251,146,60,.15); }
+.thermal-critical { border-color: rgba(248,113,113,.2); }
+.thermal-critical .thermal-header svg { color: #f87171; }
+.thermal-high .thermal-header svg     { color: #fb923c; }
+.thermal-moderate .thermal-header svg { color: #facc15; }
+
+/* Environment input fields */
+.env-inputs { display: flex; gap: 12px; margin-top: 8px; }
+.env-field { display: flex; flex-direction: column; gap: 4px; }
+.env-field label { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,.4); letter-spacing: .05em; }
+
